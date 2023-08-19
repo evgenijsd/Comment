@@ -19,10 +19,12 @@ internal class Program
             if (response.IsSuccessStatusCode)
             {
                 comment.RequestId = (await response.Content.ReadAsStringAsync()).Trim('"');
+                Console.WriteLine($"RequestId: {comment.RequestId}, Time: {DateTime.Now:HH:mm:ss}, Comment: {comment.Content}");
             }
         }
 
         var count = comments.Count();
+        Console.WriteLine();
 
         while (count > 0)
         {
@@ -37,7 +39,16 @@ internal class Program
                         if (response.StatusCode == HttpStatusCode.OK)
                         {
                             comment.Id = int.Parse(await response.Content.ReadAsStringAsync());
-                            comment.ResponseTime = DateTime.Now;
+                            comment.ReceivedTime = DateTime.Now;
+
+                            var responseComment = await _client.GetAsync($"/api/comments/{comment.Id}");
+
+                            if (responseComment.IsSuccessStatusCode)
+                            {
+                                var receivedComment = await responseComment.Content.ReadAsStringAsync();
+                                Console.WriteLine($"Id: {comment.Id, 5}, Time: {comment.ReceivedTime:HH:mm:ss}, Comment: {receivedComment}");
+                            }
+                            
                             count --;
                         }                        
                     }
@@ -45,11 +56,6 @@ internal class Program
                     await Task.Delay(500);
                 }
             }
-        }
-
-        foreach (var comment in comments)
-        {
-            Console.WriteLine($"Id: {comment.Id}, Time: {comment.ResponseTime:HH:mm:ss}, Comment: {comment.Content}");
         }
 
         Console.ReadLine();
