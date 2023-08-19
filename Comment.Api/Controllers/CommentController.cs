@@ -23,13 +23,22 @@ namespace Comment.Api.Controllers
         [HttpGet("getId/{requestId}")]
         public async Task<IActionResult> GetCommentStatus(string requestId)
         {
-            return Ok(await _commentService.GetIdCommentAsync(requestId));
+            var result = await _commentService.GetIdCommentAsync(requestId);
+
+            if (result == 0)
+            {
+                return NoContent();
+            }
+            else
+            {
+                return Ok(result);
+            }            
         }
 
         [HttpGet("{commentId}")]
         public async Task<IActionResult> GetComment(int commentId)
         {
-            return Ok(await _commentService.GetComment(commentId));
+            return Ok(await _commentService.GetCommentAsync(commentId));
         }
     }
 }

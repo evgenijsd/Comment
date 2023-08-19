@@ -20,6 +20,11 @@ namespace Comment.Api.Services
 
         public Task<Guid> CreateCommentAsync(string comment)
         {
+            if (string.IsNullOrEmpty(comment)) 
+            {
+                throw new ArgumentException(nameof(CreateCommentAsync));
+            }
+
             var requestId = Guid.NewGuid();
             var delayInSeconds = new Random().Next(10, 16);
             _pendingRequests.TryAdd(requestId, new DataRequest());
@@ -61,13 +66,13 @@ namespace Comment.Api.Services
             return Task.FromResult(result);
         }
 
-        public async Task<string> GetComment(int id)
+        public async Task<string> GetCommentAsync(int id)
         {
             var comment = await _context.Comments.FirstOrDefaultAsync(x => x.Id == id);
 
             if (comment == null)
             {
-                throw new ArgumentException(nameof(GetComment));
+                throw new ArgumentException(nameof(GetCommentAsync));
             }
 
             return comment.Content!;
