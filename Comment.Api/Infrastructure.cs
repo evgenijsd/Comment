@@ -23,6 +23,7 @@ namespace Comment.Api
             builder.Services.AddControllers();
 
             builder.Services.AddScoped<CommentService>();
+            builder.Services.AddSingleton<ActiveCommentsService>();
 
             return UseApplication(builder);
         }

@@ -9,13 +9,17 @@ using System.Collections.Concurrent;
 namespace Comment.Api.Services
 {
     public class CommentService : BaseService
-    {
-        private static ConcurrentDictionary<Guid, DataRequest> _pendingRequests = new ConcurrentDictionary<Guid, DataRequest>();
+    {        
         private readonly IServiceScopeFactory _serviceScopeFactory;
+        private readonly ActiveCommentsService _activeCommentsService;
 
-        public CommentService(CommentContext context, IServiceScopeFactory serviceScopeFactory) : base(context)
+        public CommentService(
+            CommentContext context, 
+            IServiceScopeFactory serviceScopeFactory,
+            ActiveCommentsService activeCommentsService) : base(context)
         {
             _serviceScopeFactory = serviceScopeFactory;
+            _activeCommentsService = activeCommentsService;
         }
 
         public Task<Guid> CreateCommentAsync(string comment)
@@ -27,7 +31,7 @@ namespace Comment.Api.Services
 
             var requestId = Guid.NewGuid();
             var delayInSeconds = new Random().Next(10, 16);
-            _pendingRequests.TryAdd(requestId, new DataRequest());
+            _activeCommentsService.Add(requestId, new DataRequest());
 
             Task.Run(async () =>
             {                
@@ -38,12 +42,12 @@ namespace Comment.Api.Services
                 var context = scope.ServiceProvider.GetService<CommentContext>();                
                 context!.Add(NewComment);
                 await context.SaveChangesAsync();
-                _pendingRequests[requestId].IsSaved = true;
-                _pendingRequests[requestId].Id = NewComment.Id;
+                var data = new DataRequest { Id = NewComment.Id, IsSaved = true };
+                _activeCommentsService.UpdateActivity(requestId, data);
 
                 await Task.Delay(120 * 1000);
 
-                _pendingRequests.TryRemove(requestId, out _);
+                _activeCommentsService.Remove(requestId);
             });
 
             return Task.FromResult(requestId);
@@ -51,14 +55,9 @@ namespace Comment.Api.Services
 
         public Task<int> GetIdCommentAsync(Guid id)
         {
-            int result = 0;
-            DataRequest data = new();
+            int result = _activeCommentsService.GetId(id);
 
-            if (_pendingRequests.TryGetValue(id, out data!))
-            {
-                result = data.Id;
-            }
-            else
+            if (result == 0)
             {
                 throw new ArgumentException(nameof(GetIdCommentAsync));
             }
