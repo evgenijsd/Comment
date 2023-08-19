@@ -13,6 +13,7 @@ namespace Comment.Api
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Services.AddCors();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddMvcCore(options => options.Filters.Add(typeof(CustomExceptionFilterAttribute)));
@@ -30,6 +31,13 @@ namespace Comment.Api
         {
             var app = builder.Build();
 
+            app.UseCors(builder => builder
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .WithExposedHeaders("Token-Expired")
+                .SetIsOriginAllowed(origin => true)
+                .AllowCredentials());
+            app.UseRouting();
             app.UseSwagger();
             app.UseSwaggerUI();
             app.MapControllers();
