@@ -3,8 +3,6 @@ using Comment.Api.Models;
 using Comment.Api.Models.Entities;
 using Comment.Api.Services.Abstract;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Concurrent;
 
 namespace Comment.Api.Services
 {
@@ -53,14 +51,14 @@ namespace Comment.Api.Services
             return Task.FromResult(requestId);
         }
 
-        public Task<int> GetIdCommentAsync(Guid id)
+        public Task<int> GetIdCommentAsync(Guid responseId)
         {
-            int result = _activeCommentsService.GetId(id);
-
-            if (result == 0)
+            if (!_activeCommentsService.CheckKey(responseId))
             {
                 throw new ArgumentException(nameof(GetIdCommentAsync));
             }
+
+            int result = _activeCommentsService.GetId(responseId);
 
             return Task.FromResult(result);
         }

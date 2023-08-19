@@ -34,5 +34,15 @@ namespace Comment.Api.Services
 
             return default;
         }
+
+        public bool CheckKey(Guid key)
+        {
+            if (_pendingRequests.TryGetValue(key, out var active))
+            {
+                return true;
+            }
+
+            return false;
+        }
     }
 }
