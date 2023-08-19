@@ -21,7 +21,7 @@ namespace Comment.Api.Controllers
         }
 
         [HttpGet("getId/{requestId}")]
-        public async Task<IActionResult> GetCommentStatus(string requestId)
+        public async Task<IActionResult> GetCommentStatus(Guid requestId)
         {
             var result = await _commentService.GetIdCommentAsync(requestId);
 

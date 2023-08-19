@@ -49,12 +49,12 @@ namespace Comment.Api.Services
             return Task.FromResult(requestId);
         }
 
-        public Task<int> GetIdCommentAsync(string id)
+        public Task<int> GetIdCommentAsync(Guid id)
         {
             int result = 0;
             DataRequest data = new();
 
-            if (_pendingRequests.TryGetValue(Guid.Parse(id), out data!))
+            if (_pendingRequests.TryGetValue(id, out data!))
             {
                 result = data.Id;
             }
