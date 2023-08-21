@@ -1,7 +1,5 @@
 ﻿using Comment.Api.Models;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Collections.Concurrent;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Comment.Api.Services
 {
